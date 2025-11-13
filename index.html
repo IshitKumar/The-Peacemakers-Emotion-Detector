@@ -1,106 +1,311 @@
-<script>
-  const form = document.getElementById('mood-form');
-  const chatbox = document.getElementById('chatbox');
-  const resetBtn = document.getElementById('reset-btn');
-  const settingsBtn = document.getElementById('settings-btn');
-  const settingsModal = document.getElementById('settings-modal');
-  const closeSettings = document.getElementById('close-settings');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Peacemakers' Emotion Detector</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      transition: background 1s ease-in-out;
+    }
 
-  function addChatMessage(message, type = 'bot') {
-    const msg = document.createElement('div');
-    msg.classList.add('chat-message', type);
-    msg.innerHTML = message;
-    chatbox.appendChild(msg);
-    chatbox.scrollTop = chatbox.scrollHeight;
-  }
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      width: 400px;
+      max-width: 90%;
+      overflow: hidden;
+      transition: 0.3s;
+      position: relative;
+    }
 
-  function randomGradient() {
-    const colors = ['#69DDFF', '#96CDFF', '#D8E1FF', '#DBBADD'];
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
-    const randomSecond = colors[Math.floor(Math.random() * colors.length)];
-    document.body.style.background = `linear-gradient(135deg, ${randomColor}, ${randomSecond})`;
-  }
+    .settings-btn {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: #4a90e2;
+      border: none;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+      transition: 0.3s;
+    }
 
-  randomGradient();
+    .settings-btn:hover {
+      background: #357ABD;
+    }
 
-  settingsBtn.addEventListener('click', () => settingsModal.style.display = 'block');
-  closeSettings.addEventListener('click', () => settingsModal.style.display = 'none');
+    .settings-box {
+      position: absolute;
+      top: 50px;
+      left: 10px;
+      background: #f9f9f9;
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      display: none;
+      width: 260px;
+      animation: fadeIn 0.4s ease;
+      z-index: 5;
+    }
 
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    chatbox.innerHTML = "";
+    .settings-box h3 {
+      margin-top: 0;
+      color: #333;
+    }
+
+    .settings-box p {
+      margin: 6px 0;
+      font-size: 0.95em;
+      color: #555;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      color: #444;
+    }
+
+    select, input[type="range"] {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 1em;
+      outline: none;
+      transition: 0.2s;
+    }
+
+    select:focus, input[type="range"]:focus {
+      border-color: #66a6ff;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    button {
+      flex: 1;
+      margin: 5px;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    #submitBtn {
+      background: #4caf50;
+      color: white;
+    }
+
+    #submitBtn:hover {
+      background: #43a047;
+    }
+
+    #resetBtn {
+      background: #ff5252;
+      color: white;
+    }
+
+    #resetBtn:hover {
+      background: #e53935;
+    }
+
+    .chatbox {
+      margin-top: 20px;
+      background: #f0f8ff;
+      border-radius: 16px;
+      padding: 15px;
+      display: none;
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    .chatbot-message {
+      background: linear-gradient(135deg, #6dd5fa, #2980b9);
+      color: white;
+      padding: 12px 18px;
+      border-radius: 18px 18px 0 18px;
+      max-width: 90%;
+      white-space: pre-line;
+      animation: typing 2s steps(20, end);
+      overflow: hidden;
+    }
+
+    @keyframes typing {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .chatbot-message h2 {
+      margin: 0 0 6px;
+      font-size: 1.1em;
+    }
+
+    .chatbot-message p {
+      margin: 0;
+      font-size: 0.95em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <button class="settings-btn" onclick="toggleSettings()">⚙️</button>
+    
+    <div class="settings-box" id="settingsBox">
+      <h3>Website Details</h3>
+      <p><strong>Name:</strong> Peacemakers' Emotion Detector</p>
+      <p><strong>Developer:</strong> Ishit Kumar</p>
+      <p><strong>Version:</strong> 1.2 (Duo/Trio Mood Mode)</p>
+    </div>
+
+    <h1>💬 Peacemakers' Emotion Detector</h1>
+    
+    <form id="moodForm">
+      <label>1. How do you feel right now?</label>
+      <select id="q1">
+        <option value="happy">Happy 😀</option>
+        <option value="sad">Sad 😢</option>
+        <option value="angry">Angry 😡</option>
+        <option value="stressed">Stressed 😓</option>
+        <option value="calm">Calm 😌</option>
+      </select>
+
+      <label>2. How much energy do you have?</label>
+      <select id="q2">
+        <option value="high">High ⚡</option>
+        <option value="medium">Medium 🙂</option>
+        <option value="low">Low 😴</option>
+      </select>
+
+      <label>3. How well did you sleep last night?</label>
+      <select id="q3">
+        <option value="good">Good 😴</option>
+        <option value="average">Average 😐</option>
+        <option value="poor">Poor 😫</option>
+      </select>
+
+      <label>4. How social do you feel today?</label>
+      <select id="q4">
+        <option value="talkative">Talkative 🗣️</option>
+        <option value="neutral">Neutral 🙂</option>
+        <option value="quiet">Quiet 🤫</option>
+      </select>
+
+      <label>5. Rate your stress level (1–10):</label>
+      <input type="range" id="q5" min="1" max="10" value="5" />
+
+      <div class="buttons">
+        <button type="button" id="submitBtn" onclick="checkMood()">Check Mood</button>
+        <button type="button" id="resetBtn" onclick="resetForm()">Reset</button>
+      </div>
+    </form>
+
+    <div class="chatbox" id="chatBox">
+      <div class="chatbot-message" id="chatMessage"></div>
+    </div>
+  </div>
+
+  <script>
+    function toggleSettings() {
+      const box = document.getElementById("settingsBox");
+      box.style.display = box.style.display === "block" ? "none" : "block";
+    }
+
+    function checkMood() {
+      const q1 = document.getElementById("q1").value;
+      const q2 = document.getElementById("q2").value;
+      const q3 = document.getElementById("q3").value;
+      const q4 = document.getElementById("q4").value;
+      const q5 = parseInt(document.getElementById("q5").value);
+
+      let moods = [];
+      let advice = [];
+
+      // Base mood logic
+      if (q1 === "sad" || q3 === "poor") moods.push("Sad");
+      if (q1 === "stressed" || q5 >= 7) moods.push("Stressed");
+      if (q1 === "angry") moods.push("Angry");
+      if (q1 === "happy" && q5 <= 4) moods.push("Happy");
+      if (q1 === "calm" && q2 !== "low") moods.push("Calm");
+
+      // Remove impossible combos
+      const opposites = [
+        ["Happy", "Sad"], ["Happy", "Angry"], ["Sad", "Calm"]
+      ];
+      opposites.forEach(pair => {
+        if (moods.includes(pair[0]) && moods.includes(pair[1])) {
+          moods = moods.filter(m => !pair.includes(m));
+        }
+      });
+
+      // If no mood found
+      if (moods.length === 0) moods.push("Neutral");
+
+      // Advice based on combined moods
+      const combo = moods.join(" and ");
+      if (combo.includes("Sad") && combo.includes("Stressed")) {
+        advice.push("You're feeling Sad and Stressed. Try some relaxation, journaling, or light music.");
+      } else if (combo.includes("Sad") && combo.includes("Angry")) {
+        advice.push("You’re feeling Sad and Angry. Try expressing your feelings creatively or talking to someone calm.");
+      } else if (combo.includes("Happy") && combo.includes("Calm")) {
+        advice.push("You’re feeling Happy and Calm — a perfect balance! Keep enjoying your peace.");
+      } else if (combo.includes("Stressed") && combo.includes("Angry")) {
+        advice.push("You’re feeling Angry and Stressed. Take deep breaths, go for a walk, and avoid conflicts.");
+      } else if (combo.includes("Calm") && combo.includes("Neutral")) {
+        advice.push("You’re balanced but quiet. Reflect on positive thoughts today.");
+      } else {
+        advice.push("Maintain your emotional balance and stay kind to yourself.");
+      }
+
+      // Display chatbot message
+      const chatBox = document.getElementById("chatBox");
+      const chatMessage = document.getElementById("chatMessage");
+      chatMessage.innerHTML = `<h2>${combo} Mood Detected 💬</h2><p>${advice}</p>`;
+      chatBox.style.display = "block";
+    }
+
+    function resetForm() {
+      document.getElementById("moodForm").reset();
+      document.getElementById("chatBox").style.display = "none";
+      randomGradient();
+    }
+
+    // Random gradient background
+    const pastelColors = ["#69DDFF", "#96CDFF", "#D8E1FF", "#DBBADD"];
+    function randomGradient() {
+      const c1 = pastelColors[Math.floor(Math.random() * pastelColors.length)];
+      const randomColor = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+      document.body.style.background = `linear-gradient(135deg, ${c1}, ${randomColor})`;
+    }
     randomGradient();
-
-    const mood = document.getElementById('mood').value.toLowerCase();
-    const energy = document.getElementById('energy').value.toLowerCase();
-    const stress = document.getElementById('stress').value.toLowerCase();
-    const social = document.getElementById('social').value.toLowerCase();
-    const motivation = document.getElementById('motivation').value.toLowerCase();
-
-    let reply = "";
-
-    if (mood.includes('angry') || stress.includes('high') || mood.includes('irritated')) {
-      reply = `
-        💬 You seem **angry or stressed**, and that’s completely okay. Everyone feels this way sometimes.<br><br>
-        Here are some simple steps to help you calm down and feel better:
-        <ul>
-          <li>🧘 Take deep breaths — inhale slowly for 4 seconds, hold for 2, and exhale for 6.</li>
-          <li>🚶‍♂️ Step away from what’s bothering you. A short walk or change of place helps your brain reset.</li>
-          <li>🎧 Listen to soft music or something that relaxes your mind.</li>
-          <li>✍️ Write or draw how you feel — it helps release bottled-up anger.</li>
-          <li>💬 Talk to someone you trust and explain how you feel calmly.</li>
-          <li>💦 Drink a glass of water — it helps both your body and mind cool down.</li>
-        </ul>
-        You’re strong enough to handle this. Take one small step right now — even a deep breath counts 💙
-      `;
-    }
-
-    else if (mood.includes('sad') || energy.includes('low')) {
-      reply = `
-        💬 You seem **low or sad** today. That’s okay — emotions come and go.<br><br>
-        Try these steps to lift your mood:
-        <ul>
-          <li>🌤️ Go outside for a few minutes — sunlight helps boost mood.</li>
-          <li>🗣️ Talk to someone who makes you smile, even a quick chat helps.</li>
-          <li>🎨 Do something small and creative — draw, doodle, or listen to music.</li>
-          <li>🐾 Spend time with a pet or watch something funny online.</li>
-        </ul>
-        Remember: you don’t need to fix everything today — just take care of yourself gently 💛
-      `;
-    }
-
-    else if (mood.includes('happy') || energy.includes('high')) {
-      reply = `
-        💬 You’re **feeling bright and energetic!** ☀️<br><br>
-        Keep this energy alive:
-        <ul>
-          <li>🌟 Share your positivity — compliment someone or help a friend.</li>
-          <li>🎯 Start a small project or goal you’ve been postponing.</li>
-          <li>💃 Move your body — dance, stretch, or go for a walk.</li>
-        </ul>
-        You’re radiating good vibes — spread them wherever you go ✨
-      `;
-    }
-
-    else {
-      reply = `
-        💬 Your emotions seem balanced and thoughtful 🌿<br><br>
-        Keep it up by:
-        <ul>
-          <li>🧘 Doing mindfulness or deep breathing for 2 minutes.</li>
-          <li>📖 Writing down one good thing about your day.</li>
-          <li>🌈 Taking small breaks between work or study.</li>
-        </ul>
-        Peace starts within — and you’re doing great at it 💖
-      `;
-    }
-
-    setTimeout(() => addChatMessage(reply, 'bot'), 500);
-  });
-
-  resetBtn.addEventListener('click', () => {
-    form.reset();
-    chatbox.innerHTML = "";
-    randomGradient();
-  });
-</script>
+  </script>
+</body>
+</html>

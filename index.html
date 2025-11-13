@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Peacemakers' Emotion Detector</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      transition: background 1s ease-in-out;
+    }
+
+    /* Container */
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      width: 400px;
+      max-width: 90%;
+      overflow: hidden;
+      transition: 0.3s;
+      position: relative;
+    }
+
+    /* Settings button */
+    .settings-btn {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: #4a90e2;
+      border: none;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+      transition: 0.3s;
+    }
+
+    .settings-btn:hover {
+      background: #357ABD;
+    }
+
+    /* Popup settings box */
+    .settings-box {
+      position: absolute;
+      top: 50px;
+      left: 10px;
+      background: #f9f9f9;
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      display: none;
+      width: 260px;
+      animation: fadeIn 0.4s ease;
+      z-index: 5;
+    }
+
+    .settings-box h3 {
+      margin-top: 0;
+      color: #333;
+    }
+
+    .settings-box p {
+      margin: 6px 0;
+      font-size: 0.95em;
+      color: #555;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      color: #444;
+    }
+
+    select, input[type="range"] {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 1em;
+      outline: none;
+      transition: 0.2s;
+    }
+
+    select:focus, input[type="range"]:focus {
+      border-color: #66a6ff;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    button {
+      flex: 1;
+      margin: 5px;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    #submitBtn {
+      background: #4caf50;
+      color: white;
+    }
+
+    #submitBtn:hover {
+      background: #43a047;
+    }
+
+    #resetBtn {
+      background: #ff5252;
+      color: white;
+    }
+
+    #resetBtn:hover {
+      background: #e53935;
+    }
+
+    /* Chatbox */
+    .chatbox {
+      margin-top: 20px;
+      background: #f0f8ff;
+      border-radius: 16px;
+      padding: 15px;
+      display: none;
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    .chatbot-message {
+      background: linear-gradient(135deg, #6dd5fa, #2980b9);
+      color: white;
+      padding: 12px 18px;
+      border-radius: 18px 18px 0 18px;
+      max-width: 90%;
+      white-space: pre-line;
+      animation: typing 2s steps(20, end);
+      overflow: hidden;
+    }
+
+    @keyframes typing {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .chatbot-message h2 {
+      margin: 0 0 6px;
+      font-size: 1.1em;
+    }
+
+    .chatbot-message p {
+      margin: 0;
+      font-size: 0.95em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Settings Button -->
+    <button class="settings-btn" onclick="toggleSettings()">⚙️</button>
+    
+    <!-- Settings Box -->
+    <div class="settings-box" id="settingsBox">
+      <h3>Website Details</h3>
+      <p><strong>Name:</strong> Peacemakers' Emotion Detector</p>
+      <p><strong>Developer:</strong> Ishit Kumar</p>
+      <p><strong>Version:</strong> 1.0</p>
+    </div>
+
+    <h1>💬 Peacemakers' Emotion Detector</h1>
+    
+    <form id="moodForm">
+      <label>1. How do you feel right now?</label>
+      <select id="q1">
+        <option value="happy">Happy 😀</option>
+        <option value="sad">Sad 😢</option>
+        <option value="angry">Angry 😡</option>
+        <option value="stressed">Stressed 😓</option>
+        <option value="calm">Calm 😌</option>
+      </select>
+
+      <label>2. How much energy do you have?</label>
+      <select id="q2">
+        <option value="high">High ⚡</option>
+        <option value="medium">Medium 🙂</option>
+        <option value="low">Low 😴</option>
+      </select>
+
+      <label>3. How well did you sleep last night?</label>
+      <select id="q3">
+        <option value="good">Good 😴</option>
+        <option value="average">Average 😐</option>
+        <option value="poor">Poor 😫</option>
+      </select>
+
+      <label>4. How social do you feel today?</label>
+      <select id="q4">
+        <option value="talkative">Talkative 🗣️</option>
+        <option value="neutral">Neutral 🙂</option>
+        <option value="quiet">Quiet 🤫</option>
+      </select>
+
+      <label>5. Rate your stress level (1–10):</label>
+      <input type="range" id="q5" min="1" max="10" value="5" />
+
+      <div class="buttons">
+        <button type="button" id="submitBtn" onclick="checkMood()">Check Mood</button>
+        <button type="button" id="resetBtn" onclick="resetForm()">Reset</button>
+      </div>
+    </form>
+
+    <div class="chatbox" id="chatBox">
+      <div class="chatbot-message" id="chatMessage"></div>
+    </div>
+  </div>
+
+  <script>
+    // SETTINGS TOGGLE
+    function toggleSettings() {
+      const box = document.getElementById("settingsBox");
+      box.style.display = box.style.display === "block" ? "none" : "block";
+    }
+
+    // MOOD DETECTOR LOGIC
+    function checkMood() {
+      const q1 = document.getElementById("q1").value;
+      const q2 = document.getElementById("q2").value;
+      const q3 = document.getElementById("q3").value;
+      const q4 = document.getElementById("q4").value;
+      const q5 = document.getElementById("q5").value;
+
+      let mood = "";
+      let advice = "";
+
+      if (q1 === "happy" && q2 === "high" && q5 <= 4) {
+        mood = "😊 You seem to be in a Happy Mood!";
+        advice = "Keep spreading positivity! Listen to your favorite song or call a friend.";
+      } 
+      else if (q1 === "stressed" || q5 >= 7) {
+        mood = "😓 You seem Stressed.";
+        advice = "Try deep breathing, take a walk, or write down what’s bothering you.";
+      } 
+      else if (q1 === "sad" || q3 === "poor") {
+        mood = "😢 You seem a bit Sad.";
+        advice = "It’s okay to feel low sometimes. Watch something uplifting or talk to someone you trust.";
+      } 
+      else if (q1 === "angry") {
+        mood = "😡 You seem Angry.";
+        advice = "Take a break, count to 10, or listen to calming music.";
+      } 
+      else if (q1 === "calm" && q2 !== "low") {
+        mood = "😌 You seem Calm and Balanced.";
+        advice = "That’s great! Maybe do some stretching or gratitude journaling.";
+      } 
+      else {
+        mood = "🙂 You seem Neutral.";
+        advice = "Keep a positive mindset. Try doing one small thing that makes you smile.";
+      }
+
+      const chatBox = document.getElementById("chatBox");
+      const chatMessage = document.getElementById("chatMessage");
+      chatMessage.innerHTML = `<h2>${mood}</h2><p>${advice}</p>`;
+      chatBox.style.display = "block";
+    }
+
+    function resetForm() {
+      document.getElementById("moodForm").reset();
+      document.getElementById("chatBox").style.display = "none";
+    }
+
+    // RANDOM GRADIENT BACKGROUND
+    const pastelColors = ["#69DDFF", "#96CDFF", "#D8E1FF", "#DBBADD"];
+    function randomGradient() {
+      const c1 = pastelColors[Math.floor(Math.random() * pastelColors.length)];
+      const randomColor = `#${Math.floor(Math.random()*16777215).toString(16)}`;
+      document.body.style.background = `linear-gradient(135deg, ${c1}, ${randomColor})`;
+    }
+    randomGradient();
+  </script>
+</body>
+</html>

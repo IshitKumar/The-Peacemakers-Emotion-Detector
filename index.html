@@ -16,7 +16,6 @@
       transition: background 1s ease-in-out;
     }
 
-    /* Container */
     .container {
       background: white;
       border-radius: 20px;
@@ -29,7 +28,6 @@
       position: relative;
     }
 
-    /* Settings button */
     .settings-btn {
       position: absolute;
       top: 10px;
@@ -50,7 +48,6 @@
       background: #357ABD;
     }
 
-    /* Popup settings box */
     .settings-box {
       position: absolute;
       top: 50px;
@@ -137,7 +134,6 @@
       background: #e53935;
     }
 
-    /* Chatbox */
     .chatbox {
       margin-top: 20px;
       background: #f0f8ff;
@@ -181,15 +177,13 @@
 </head>
 <body>
   <div class="container">
-    <!-- Settings Button -->
     <button class="settings-btn" onclick="toggleSettings()">⚙️</button>
     
-    <!-- Settings Box -->
     <div class="settings-box" id="settingsBox">
       <h3>Website Details</h3>
       <p><strong>Name:</strong> Peacemakers' Emotion Detector</p>
       <p><strong>Developer:</strong> Ishit Kumar</p>
-      <p><strong>Version:</strong> 1.0</p>
+      <p><strong>Version:</strong> 1.2 (Duo/Trio Mood Mode)</p>
     </div>
 
     <h1>💬 Peacemakers' Emotion Detector</h1>
@@ -240,64 +234,75 @@
   </div>
 
   <script>
-    // SETTINGS TOGGLE
     function toggleSettings() {
       const box = document.getElementById("settingsBox");
       box.style.display = box.style.display === "block" ? "none" : "block";
     }
 
-    // MOOD DETECTOR LOGIC
     function checkMood() {
       const q1 = document.getElementById("q1").value;
       const q2 = document.getElementById("q2").value;
       const q3 = document.getElementById("q3").value;
       const q4 = document.getElementById("q4").value;
-      const q5 = document.getElementById("q5").value;
+      const q5 = parseInt(document.getElementById("q5").value);
 
-      let mood = "";
-      let advice = "";
+      let moods = [];
+      let advice = [];
 
-      if (q1 === "happy" && q2 === "high" && q5 <= 4) {
-        mood = "😊 You seem to be in a Happy Mood!";
-        advice = "Keep spreading positivity! Listen to your favorite song or call a friend.";
-      } 
-      else if (q1 === "stressed" || q5 >= 7) {
-        mood = "😓 You seem Stressed.";
-        advice = "Try deep breathing, take a walk, or write down what’s bothering you.";
-      } 
-      else if (q1 === "sad" || q3 === "poor") {
-        mood = "😢 You seem a bit Sad.";
-        advice = "It’s okay to feel low sometimes. Watch something uplifting or talk to someone you trust.";
-      } 
-      else if (q1 === "angry") {
-        mood = "😡 You seem Angry.";
-        advice = "Take a break, count to 10, or listen to calming music.";
-      } 
-      else if (q1 === "calm" && q2 !== "low") {
-        mood = "😌 You seem Calm and Balanced.";
-        advice = "That’s great! Maybe do some stretching or gratitude journaling.";
-      } 
-      else {
-        mood = "🙂 You seem Neutral.";
-        advice = "Keep a positive mindset. Try doing one small thing that makes you smile.";
+      // Base mood logic
+      if (q1 === "sad" || q3 === "poor") moods.push("Sad");
+      if (q1 === "stressed" || q5 >= 7) moods.push("Stressed");
+      if (q1 === "angry") moods.push("Angry");
+      if (q1 === "happy" && q5 <= 4) moods.push("Happy");
+      if (q1 === "calm" && q2 !== "low") moods.push("Calm");
+
+      // Remove impossible combos
+      const opposites = [
+        ["Happy", "Sad"], ["Happy", "Angry"], ["Sad", "Calm"]
+      ];
+      opposites.forEach(pair => {
+        if (moods.includes(pair[0]) && moods.includes(pair[1])) {
+          moods = moods.filter(m => !pair.includes(m));
+        }
+      });
+
+      // If no mood found
+      if (moods.length === 0) moods.push("Neutral");
+
+      // Advice based on combined moods
+      const combo = moods.join(" and ");
+      if (combo.includes("Sad") && combo.includes("Stressed")) {
+        advice.push("You're feeling Sad and Stressed. Try some relaxation, journaling, or light music.");
+      } else if (combo.includes("Sad") && combo.includes("Angry")) {
+        advice.push("You’re feeling Sad and Angry. Try expressing your feelings creatively or talking to someone calm.");
+      } else if (combo.includes("Happy") && combo.includes("Calm")) {
+        advice.push("You’re feeling Happy and Calm — a perfect balance! Keep enjoying your peace.");
+      } else if (combo.includes("Stressed") && combo.includes("Angry")) {
+        advice.push("You’re feeling Angry and Stressed. Take deep breaths, go for a walk, and avoid conflicts.");
+      } else if (combo.includes("Calm") && combo.includes("Neutral")) {
+        advice.push("You’re balanced but quiet. Reflect on positive thoughts today.");
+      } else {
+        advice.push("Maintain your emotional balance and stay kind to yourself.");
       }
 
+      // Display chatbot message
       const chatBox = document.getElementById("chatBox");
       const chatMessage = document.getElementById("chatMessage");
-      chatMessage.innerHTML = `<h2>${mood}</h2><p>${advice}</p>`;
+      chatMessage.innerHTML = `<h2>${combo} Mood Detected 💬</h2><p>${advice}</p>`;
       chatBox.style.display = "block";
     }
 
     function resetForm() {
       document.getElementById("moodForm").reset();
       document.getElementById("chatBox").style.display = "none";
+      randomGradient();
     }
 
-    // RANDOM GRADIENT BACKGROUND
+    // Random gradient background
     const pastelColors = ["#69DDFF", "#96CDFF", "#D8E1FF", "#DBBADD"];
     function randomGradient() {
       const c1 = pastelColors[Math.floor(Math.random() * pastelColors.length)];
-      const randomColor = `#${Math.floor(Math.random()*16777215).toString(16)}`;
+      const randomColor = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
       document.body.style.background = `linear-gradient(135deg, ${c1}, ${randomColor})`;
     }
     randomGradient();
